@@ -464,6 +464,8 @@ func computeVersion(library string, deviceIndex int, gfxByIndex map[int]string, 
 func inferLibrary(name, description string) string {
 	combined := strings.ToLower(name + " " + description)
 	switch {
+	case strings.HasPrefix(strings.ToUpper(name), "CANN"):
+		return "CANN"
 	case strings.Contains(combined, "cuda"):
 		return "CUDA"
 	case strings.Contains(combined, "rocm") || strings.Contains(combined, "hip"):
