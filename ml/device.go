@@ -393,6 +393,8 @@ func (d DeviceInfo) updateVisibleDevicesEnv(env map[string]string, mustFilter bo
 	var envVar string
 	var rocmOrdinalEnv string
 	switch d.Library {
+	case "CANN":
+		envVar = "ASCEND_RT_VISIBLE_DEVICES"
 	case "ROCm":
 		// ROCm must be filtered as it can crash the runner on unsupported devices
 		envVar = "ROCR_VISIBLE_DEVICES"

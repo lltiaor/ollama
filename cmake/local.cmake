@@ -811,6 +811,24 @@ if(OLLAMA_HAVE_LLAMA_SERVER)
                 TARGETS ggml-hip
                 CMAKE_ARGS ${_rocm_args})
             list(APPEND _backend_targets ollama-llama-server-${_backend})
+        elseif(_backend STREQUAL "cann")
+            if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+                message(FATAL_ERROR "The CANN backend requires Linux")
+            endif()
+            set(_cann_args)
+            foreach(_arg IN ITEMS CANN_INSTALL_DIR SOC_TYPE)
+                ollama_append_cache_arg_if_set(_cann_args ${_arg})
+            endforeach()
+            ollama_add_llama_server_build(cann
+                RUNNER_DIR cann
+                TARGETS ggml-cann
+                CMAKE_ARGS
+                    -DBUILD_SHARED_LIBS=ON
+                    -DGGML_BACKEND_DL=ON
+                    -DGGML_CANN=ON
+                    -DOLLAMA_GPU_BACKEND=cann
+                    ${_cann_args})
+            list(APPEND _backend_targets ollama-llama-server-cann)
         elseif(_backend STREQUAL "vulkan")
             ollama_add_llama_server_build(vulkan
                 RUNNER_DIR vulkan
