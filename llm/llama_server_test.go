@@ -2028,6 +2028,9 @@ func TestAppendBatchArgs(t *testing.T) {
 
 func TestAppendFlashAttentionArgs(t *testing.T) {
 	supportedGPU := []ml.DeviceInfo{{DeviceID: ml.DeviceID{Library: "CUDA"}, DriverMajor: 13, ComputeMajor: 8, ComputeMinor: 9}}
+	ascend910B := []ml.DeviceInfo{{DeviceID: ml.DeviceID{Library: "CANN"}, Description: "Ascend910B3"}}
+	ascend310P := []ml.DeviceInfo{{DeviceID: ml.DeviceID{Library: "CANN"}, Description: "Ascend310P3"}}
+	unknownAscend := []ml.DeviceInfo{{DeviceID: ml.DeviceID{Library: "CANN"}, Name: "CANN0"}}
 	oldGPU := []ml.DeviceInfo{
 		{DeviceID: ml.DeviceID{Library: "CUDA"}, DriverMajor: 12, ComputeMajor: 8, ComputeMinor: 9},
 		{DeviceID: ml.DeviceID{Library: "CUDA"}, DriverMajor: 12, ComputeMajor: 5, ComputeMinor: 0},
@@ -2096,6 +2099,35 @@ func TestAppendFlashAttentionArgs(t *testing.T) {
 			env:  "1",
 			set:  true,
 			gpus: oldGPU,
+			want: []string{"base", "--flash-attn", "on"},
+		},
+		{
+			name: "cann 910b uses llama-server auto mode",
+			gpus: ascend910B,
+			want: []string{"base", "--flash-attn", "auto"},
+		},
+		{
+			name: "cann 310p disables flash attention by default",
+			gpus: ascend310P,
+			want: []string{"base", "--flash-attn", "off"},
+		},
+		{
+			name: "cann with unknown soc disables flash attention by default",
+			gpus: unknownAscend,
+			want: []string{"base", "--flash-attn", "off"},
+		},
+		{
+			name: "explicit disable overrides cann 910b auto mode",
+			env:  "0",
+			set:  true,
+			gpus: ascend910B,
+			want: []string{"base", "--flash-attn", "off"},
+		},
+		{
+			name: "explicit enable requests flash attention on cann 910b",
+			env:  "1",
+			set:  true,
+			gpus: ascend910B,
 			want: []string{"base", "--flash-attn", "on"},
 		},
 	}

@@ -277,6 +277,7 @@ func FlashAttentionSupported(l []DeviceInfo) bool {
 		supportsFA := gpu.Library == "cpu" ||
 			gpu.Name == "Metal" || gpu.Library == "Metal" ||
 			cudaFlashAttentionSupported(gpu) ||
+			cannFlashAttentionSupported(gpu) ||
 			gpu.Library == "ROCm" ||
 			gpu.Library == "Vulkan"
 
@@ -301,6 +302,12 @@ func cudaFlashAttentionSupported(gpu DeviceInfo) bool {
 	}
 
 	return gpu.DriverMajor >= 7
+}
+
+func cannFlashAttentionSupported(device DeviceInfo) bool {
+	// The CANN backend reports the SoC name as the device description.
+	// Allow auto mode on Ascend 910B; 310P has no CANN Flash Attention kernel.
+	return device.Library == "CANN" && strings.HasPrefix(device.Description, "Ascend910B")
 }
 
 type FlashAttentionType int32

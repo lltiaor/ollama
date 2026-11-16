@@ -5,7 +5,6 @@ package discover
 import (
 	"context"
 	"log/slog"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -608,7 +607,7 @@ func remapFilterIDForUserVisibleDevices(device *ml.DeviceInfo) {
 func visibleDeviceFilterTokens(goos, library string) []string {
 	switch library {
 	case "CANN":
-		return splitVisibleDeviceList(os.Getenv("ASCEND_RT_VISIBLE_DEVICES"))
+		return splitVisibleDeviceList(envconfig.AscendVisibleDevices())
 	case "CUDA":
 		return splitVisibleDeviceList(envconfig.CudaVisibleDevices())
 	case "ROCm":
